@@ -118,46 +118,47 @@ export default function ConditionalAuth({
                 <p className="text-gray-600 text-sm">{description}</p>
               </CardHeader>
               <CardContent>
-              <Auth
-                supabaseClient={supabase}
-                view={view}
-                appearance={{ 
-                  theme: ThemeSupa,
-                  variables: {
-                    default: {
-                      colors: {
-                        brand: '#6366f1',
-                        brandAccent: '#4f46e5',
+                <Auth
+                  supabaseClient={supabase}
+                  view={view}
+                  appearance={{ 
+                    theme: ThemeSupa,
+                    variables: {
+                      default: {
+                        colors: {
+                          brand: '#6366f1',
+                          brandAccent: '#4f46e5',
+                        },
                       },
                     },
-                  },
-                }}
-                providers={['google']}
-                redirectTo={`${window.location.origin}/auth/callback`}
-                localization={{
-                  variables: {
-                    [view]: {
-                      email_label: 'Email address',
-                      password_label: view === 'sign_up' ? 'Create a password' : 'Password',
-                      button_label: buttonText,
-                      loading_button_label: loadingText,
-                      link_text: linkText,
-                      confirmation_text: 'Check your email for the confirmation link',
-                      social_provider_text: `${view === 'sign_up' ? 'Sign up' : 'Sign in'} with {{provider}}`
+                  }}
+                  providers={['google']}
+                  redirectTo={typeof window !== 'undefined' ? `${window.location.origin}/auth/callback` : '/auth/callback'}
+                  localization={{
+                    variables: {
+                      [view]: {
+                        email_label: 'Email address',
+                        password_label: view === 'sign_up' ? 'Create a password' : 'Password',
+                        button_label: buttonText,
+                        loading_button_label: loadingText,
+                        link_text: linkText,
+                        confirmation_text: 'Check your email for the confirmation link',
+                        social_provider_text: `${view === 'sign_up' ? 'Sign up' : 'Sign in'} with {{provider}}`
+                      }
                     }
-                  }
-                }}
-              />
-              
-              <div className="mt-4 text-center">
-                <Link href={linkHref} className="text-sm text-blue-600 hover:underline">
-                  {linkText}
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
+                  }}
+                />
+                
+                <div className="mt-4 text-center">
+                  <Link href={linkHref} className="text-sm text-blue-600 hover:underline">
+                    {linkText}
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
-      </div>
+      </>
     )
   }
 
