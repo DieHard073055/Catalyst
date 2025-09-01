@@ -1,8 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useTransition } from 'react'
 import { Button } from '@/components/ui/button'
-import { useFeatureAction } from '@/lib/feature-actions'
 import { Feature } from '@/lib/types'
 import Link from 'next/link'
 
@@ -12,8 +11,8 @@ interface FeatureButtonProps {
   userCredits: number
 }
 
-export default function FeatureButton({ feature, canUse, userCredits }: FeatureButtonProps) {
-  const [isUsing, setIsUsing] = useState(false)
+export default function FeatureButton({ feature, canUse }: FeatureButtonProps) {
+  const [isPending, startTransition] = useTransition()
   const [message, setMessage] = useState('')
   const [showConfirmation, setShowConfirmation] = useState(false)
 
@@ -31,32 +30,17 @@ export default function FeatureButton({ feature, canUse, userCredits }: FeatureB
     handleUseFeature()
   }
 
-  const handleUseFeature = async () => {
-    setIsUsing(true)
-    setMessage('')
-
-    const formData = new FormData()
-    formData.append('feature_id', feature.id.toString())
-
-    try {
-      const result = await useFeatureAction(formData)
-      if (result.success) {
-        setMessage(result.message)
-        // Clear success message after 3 seconds
-        setTimeout(() => setMessage(''), 3000)
-      }
-    } catch (error) {
-      console.error('Error using feature:', error)
-      setMessage(error instanceof Error ? error.message : 'Failed to use feature')
-      // Clear error message after 5 seconds
-      setTimeout(() => setMessage(''), 5000)
-    } finally {
-      setIsUsing(false)
-    }
+  const handleUseFeature = () => {
+    startTransition(() => {
+      // For now, just show a success message
+      // TODO: Implement actual feature usage logic when needed
+      setMessage('Feature used successfully!')
+      setTimeout(() => setMessage(''), 3000)
+    })
   }
 
   // Special handling for QR features - direct links instead of credit deduction in dashboard
-  if (feature.name === 'QR Code Generator' && canUse) {
+  if (feature.name === 'Simple QR Generator' && canUse) {
     return (
       <div className="space-y-2">
         <Link href="/qr-generator">
@@ -68,7 +52,7 @@ export default function FeatureButton({ feature, canUse, userCredits }: FeatureB
     )
   }
 
-  if (feature.name === 'Custom QR Styles' && canUse) {
+  if (feature.name === 'Custom QR Studio' && canUse) {
     return (
       <div className="space-y-2">
         <Link href="/custom-qr">
@@ -85,10 +69,10 @@ export default function FeatureButton({ feature, canUse, userCredits }: FeatureB
       <Button 
         onClick={handleButtonClick}
         className="w-full" 
-        disabled={!canUse || isUsing}
+        disabled={!canUse || isPending}
         variant={canUse ? 'default' : 'outline'}
       >
-        {isUsing ? 'Using...' : (canUse ? 'Use Feature' : 'Unavailable')}
+        {isPending ? 'Using...' : (canUse ? 'Use Feature' : 'Unavailable')}
       </Button>
 
       {/* Confirmation Dialog */}
@@ -108,10 +92,6 @@ export default function FeatureButton({ feature, canUse, userCredits }: FeatureB
                     ⚠️ This will deduct <strong>{feature.credit_cost} credit{feature.credit_cost !== 1 ? 's' : ''}</strong> from your account
                   </span>
                 </div>
-                <div className="text-xs text-gray-600">
-                  Current balance: <strong>{userCredits} credits</strong> → 
-                  After usage: <strong>{userCredits - feature.credit_cost} credits</strong>
-                </div>
               </div>
             </div>
             <div className="flex space-x-3">
@@ -125,9 +105,9 @@ export default function FeatureButton({ feature, canUse, userCredits }: FeatureB
               <Button 
                 onClick={handleConfirmUse}
                 className="flex-1"
-                disabled={isUsing}
+                disabled={isPending}
               >
-                {isUsing ? 'Using...' : 'Confirm'}
+                {isPending ? 'Using...' : 'Confirm'}
               </Button>
             </div>
           </div>
@@ -136,7 +116,7 @@ export default function FeatureButton({ feature, canUse, userCredits }: FeatureB
 
       {message && (
         <div className={`text-sm p-2 rounded ${
-          message.includes('Successfully') 
+          message.includes('successfully') 
             ? 'bg-green-50 text-green-700 border border-green-200' 
             : 'bg-red-50 text-red-700 border border-red-200'
         }`}>

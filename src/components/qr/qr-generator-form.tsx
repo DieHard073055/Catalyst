@@ -222,7 +222,7 @@ export default function QRGeneratorForm({ userProfile }: QRGeneratorFormProps) {
               <div className="w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center mb-4">
                 <div className="text-4xl">📱</div>
               </div>
-              <p className="text-center">Enter content and click "Generate QR Code" to get started</p>
+              <p className="text-center">Enter content and click &quot;Generate QR Code&quot; to get started</p>
             </div>
           )}
         </CardContent>

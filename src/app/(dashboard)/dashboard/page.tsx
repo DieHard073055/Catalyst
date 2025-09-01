@@ -30,18 +30,7 @@ export default async function DashboardPage() {
   // Check if user has unlocked Custom QR Studio
   const hasUnlockedCustomQR = await checkFeatureUnlock('custom_qr_studio')
 
-  const getRoleBadge = (role: string) => {
-    switch (role) {
-      case 'admin':
-        return <Badge variant="default" className="bg-purple-500 hover:bg-purple-600 text-white">Admin</Badge>
-      case 'premium':
-        return <Badge variant="default" className="bg-yellow-500 hover:bg-yellow-600 text-white">Premium</Badge>
-      case 'free':
-        return <Badge variant="secondary">Free</Badge>
-      default:
-        return <Badge variant="outline">{role}</Badge>
-    }
-  }
+  // Removed unused function getRoleBadge
 
   return (
     <div className="min-h-screen bg-gray-50">

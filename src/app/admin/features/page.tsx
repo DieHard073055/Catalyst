@@ -1,4 +1,4 @@
-import { createSupabaseServer } from '@/lib/supabase/server'
+// import { createSupabaseServer } from '@/lib/supabase/server' // TODO: implement admin features
 import FeatureConfigTable from '@/components/admin/feature-config-table'
 
 export default async function AdminFeaturesPage() {
