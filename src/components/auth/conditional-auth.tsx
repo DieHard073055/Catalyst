@@ -130,7 +130,7 @@ export default function ConditionalAuth({
                   },
                 }}
                 providers={['google']}
-                redirectTo={`https://catalyst-eight-bay.vercel.app/dashboard`}
+                redirectTo="https://catalyst-eight-bay.vercel.app/dashboard"
                 localization={{
                   variables: {
                     [view]: {
