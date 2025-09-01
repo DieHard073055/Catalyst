@@ -1,107 +1,77 @@
 'use client'
 
-import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import Link from 'next/link'
+import { Auth } from '@supabase/auth-ui-react'
+import { ThemeSupa } from '@supabase/auth-ui-shared'
 import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import Link from 'next/link'
 
 export default function LoginPage() {
-  const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
   const router = useRouter()
+  const supabase = createClient()
 
-  const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setLoading(true)
-    setMessage(null)
-
-    const formData = new FormData(e.currentTarget)
-    const email = formData.get('email') as string
-    const password = formData.get('password') as string
-
-    const supabase = createClient()
-
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      })
-
-      if (error) {
-        setMessage({ type: 'error', text: error.message })
-      } else if (data.user) {
-        // Successful login, redirect to dashboard
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session) {
         router.push('/dashboard')
         router.refresh()
       }
-    } catch (error) {
-      setMessage({ 
-        type: 'error', 
-        text: error instanceof Error ? error.message : 'Failed to sign in' 
-      })
-    } finally {
-      setLoading(false)
-    }
-  }
+    })
+
+    return () => subscription.unsubscribe()
+  }, [router, supabase.auth])
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Sign In</CardTitle>
-          <CardDescription>
-            Enter your credentials to access your account
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSignIn} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="Enter your email"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                placeholder="Enter your password"
-                required
-              />
-            </div>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+      <div className="w-full max-w-md">
+        <Card>
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl">Sign In</CardTitle>
+            <p className="text-gray-600 text-sm">
+              Enter your credentials to access your account
+            </p>
+          </CardHeader>
+          <CardContent>
+            <Auth
+              supabaseClient={supabase}
+              view="sign_in"
+              appearance={{ 
+                theme: ThemeSupa,
+                variables: {
+                  default: {
+                    colors: {
+                      brand: '#6366f1',
+                      brandAccent: '#4f46e5',
+                    },
+                  },
+                },
+              }}
+              providers={['google']}
+              redirectTo={typeof window !== 'undefined' ? `${window.location.origin}/dashboard` : process.env.NODE_ENV === 'production' ? 'https://catalyst-eight-bay.vercel.app/dashboard' : 'http://localhost:3000/dashboard'}
+              localization={{
+                variables: {
+                  sign_in: {
+                    email_label: 'Email address',
+                    password_label: 'Password',
+                    button_label: 'Sign In',
+                    loading_button_label: 'Signing In...',
+                    link_text: "Don't have an account? Sign up",
+                    social_provider_text: 'Sign in with {{provider}}'
+                  }
+                }
+              }}
+            />
             
-            {message && (
-              <div className={`p-3 rounded-md text-sm ${
-                message.type === 'success' 
-                  ? 'bg-green-50 text-green-700 border border-green-200' 
-                  : 'bg-red-50 text-red-700 border border-red-200'
-              }`}>
-                {message.text}
-              </div>
-            )}
-
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Signing In...' : 'Sign In'}
-            </Button>
-            <div className="text-center text-sm">
-              Don&apos;t have an account?{' '}
-              <Link href="/signup" className="text-blue-600 hover:underline">
-                Sign up
+            <div className="mt-4 text-center">
+              <Link href="/signup" className="text-sm text-blue-600 hover:underline">
+                Don&apos;t have an account? Sign up
               </Link>
             </div>
-          </form>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }
