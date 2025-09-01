@@ -11,6 +11,7 @@ import { useRouter } from 'next/navigation'
 import { Auth } from '@supabase/auth-ui-react'
 import { ThemeSupa } from '@supabase/auth-ui-shared'
 import { useEffect } from 'react'
+import AuthCallbackHandler from './auth-callback-handler'
 
 interface ConditionalAuthProps {
   view: 'sign_up' | 'sign_in'
@@ -107,14 +108,16 @@ export default function ConditionalAuth({
   // Production: Use Supabase Auth UI
   if (isProduction) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-        <div className="w-full max-w-md">
-          <Card>
-            <CardHeader className="text-center">
-              <CardTitle className="text-2xl">{title}</CardTitle>
-              <p className="text-gray-600 text-sm">{description}</p>
-            </CardHeader>
-            <CardContent>
+      <>
+        <AuthCallbackHandler />
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+          <div className="w-full max-w-md">
+            <Card>
+              <CardHeader className="text-center">
+                <CardTitle className="text-2xl">{title}</CardTitle>
+                <p className="text-gray-600 text-sm">{description}</p>
+              </CardHeader>
+              <CardContent>
               <Auth
                 supabaseClient={supabase}
                 view={view}
@@ -130,7 +133,7 @@ export default function ConditionalAuth({
                   },
                 }}
                 providers={['google']}
-                redirectTo="https://catalyst-eight-bay.vercel.app/dashboard"
+                redirectTo={`${window.location.origin}/auth/callback`}
                 localization={{
                   variables: {
                     [view]: {
